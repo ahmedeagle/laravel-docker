@@ -1,0 +1,25 @@
+FROM php:8.2-fpm
+
+# Install system dependencies
+RUN apt update && apt install -y \
+    libpng-dev zip unzip curl git libonig-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy code
+COPY . .
+
+# Install Composer globally and Laravel dependencies
+RUN curl -sS https://getcomposer.org/installer | php && \
+    mv composer.phar /usr/local/bin/composer && \
+    composer install --no-dev --optimize-autoloader
+
+# Fix permissions
+RUN chown -R www-data:www-data /var/www && \
+    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+
+USER www-data
+
+CMD ["php-fpm"]
