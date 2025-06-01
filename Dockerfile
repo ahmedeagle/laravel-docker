@@ -5,16 +5,19 @@ RUN apt update && apt install -y \
     libpng-dev zip unzip curl git libonig-dev libxml2-dev \
     && docker-php-ext-install pdo pdo_mysql
 
+
 # Set working directory
 WORKDIR /var/www
 
 # Copy code
 COPY . .
 
-# Install Composer globally and Laravel dependencies
-RUN curl -sS https://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer && \
-    composer install --no-dev --optimize-autoloader
+# Install Composer & Laravel deps
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer \
+    && composer install --no-dev --optimize-autoloader \
+    && php artisan config:clear \
+    && php artisan route:clear
 
 # Fix permissions
 RUN chown -R www-data:www-data /var/www && \
