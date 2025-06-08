@@ -9,6 +9,9 @@ RUN apt update && apt install -y \
 # Set working directory
 WORKDIR /var/www
 
+# Copy composer files first for better layer caching
+COPY composer.json composer.lock ./
+
 # Copy code
 COPY . .
 
