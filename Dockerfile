@@ -1,5 +1,5 @@
 FROM php:8.2-fpm
-
+ 
 # Install system dependencies
 RUN apt update && apt install -y \
     libpng-dev zip unzip curl git libonig-dev libxml2-dev \
