@@ -29,3 +29,6 @@ RUN chown -R www-data:www-data /var/www && \
 USER www-data
 
 CMD ["php-fpm"]
+
+#"php-fpm is our default entrypoint. In production, it will be paired with Nginx via a service
+# like Docker Compose or Kubernetes ingress."
