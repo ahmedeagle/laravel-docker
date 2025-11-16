@@ -76,6 +76,21 @@ jobs:
           echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
           echo "✅ Pushed: ${ECR_REGISTRY}/${ECR_REPOSITORY}:latest"
 
+      - name: Trigger GitOps Update
+        env:
+          FULL_IMAGE: ${{ steps.build.outputs.image }}
+          GITOPS_TOKEN: ${{ secrets.GITOPS_REPO_TOKEN }}
+        run: |
+          echo "🔄 Triggering GitOps repository update..."
+          
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${GITOPS_TOKEN}" \
+            https://api.github.com/repos/${{ github.repository_owner }}/k8s-distributed-laravel/dispatches \
+            -d "{\"event_type\":\"laravel-docker-updated\",\"client_payload\":{\"image\":\"${FULL_IMAGE}\"}}"
+          
+          echo "✅ GitOps update triggered"
+
       - name: Summary
         run: |
           echo "## Deployment Summary 🚀" >> $GITHUB_STEP_SUMMARY
@@ -83,4 +98,7 @@ jobs:
           echo "- **Image**: \`${{ steps.build.outputs.image }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag**: \`${{ steps.tag.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
           echo "- **Registry**: \`${{ steps.login-ecr.outputs.registry }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: \`${{ env.ECR_REPOSITORY }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ GitOps repository will automatically update deployment manifests" >> $GITHUB_STEP_SUMMARY
+          echo "🔄 ArgoCD will sync changes to Kubernetes cluster" >> $GITHUB_STEP_SUMMARY
