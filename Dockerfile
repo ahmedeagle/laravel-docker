@@ -18,13 +18,15 @@ COPY . .
 # Install Composer & Laravel deps
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
-    && composer install --no-dev --optimize-autoloader \
-    && php artisan config:clear \
-    && php artisan route:clear
+    && composer install --no-dev --optimize-autoloader
 
-# Fix permissions
-RUN chown -R www-data:www-data /var/www && \
-    chmod -R 775 /var/www/storage /var/www/bootstrap/cache
+# Create cache directories and fix permissions
+RUN mkdir -p /var/www/storage/framework/cache/data \
+    && mkdir -p /var/www/storage/framework/sessions \
+    && mkdir -p /var/www/storage/framework/views \
+    && mkdir -p /var/www/bootstrap/cache \
+    && chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
 USER www-data
 
